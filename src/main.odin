@@ -11,8 +11,10 @@ main :: proc() {
 	bufio.scanner_init(&scanner, stdin)
 	defer bufio.scanner_destroy(&scanner)
 
-	input := prompt_user(&scanner)
-	fmt.printfln("%s: command not found", input)
+	for {
+		input := prompt_user(&scanner)
+		fmt.printfln("%s: command not found", input)
+	}
 }
 
 prompt_user :: proc(scanner: ^bufio.Scanner) -> string {
