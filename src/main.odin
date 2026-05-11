@@ -33,19 +33,16 @@ evaluate :: proc(input: string) -> Maybe(int) {
 	command, args := input_array[0], input_array[1:]
 	switch command {
 	case "exit":
-		if len(args) == 0 {
-			return 0
-		}
-		return nil
+		return command_exit(command, args)
 
 	case "echo":
-		command_echo(args)
-		return nil
+		return command_echo(command, args)
+
+	case "type":
+		return command_type(command, args)
 
 	case:
-		fmt.printfln("%s: command not found", input)
-		return nil
-
+		return command_not_found(command, args)
 	}
 }
 
