@@ -3,6 +3,7 @@
 package main
 
 import "core:fmt"
+import "core:os"
 import "core:strings"
 
 Builtin_Command :: proc(command: string, args: []string) -> Maybe(int)
@@ -44,10 +45,39 @@ command_type :: proc(command: string, args: []string) -> Maybe(int) {
 	}
 
 	command_to_check := args[0]
+	path := os.get_env("PATH", context.allocator)
+
 	if command_to_check in builtin_commands {
 		fmt.printfln("%s is a shell builtin", command_to_check)
 	} else {
-		fmt.printfln("%s: not found", command_to_check)
+		result := search_exe_binary(path, command_to_check)
+		if bin_path, ok := result.?; ok {
+			fmt.printfln("%s is %s", command_to_check, bin_path)
+		} else {
+			fmt.printfln("%s: not found", command_to_check)
+		}
+	}
+
+	return nil
+}
+
+search_exe_binary :: proc(path: string, binary_name: string) -> Maybe(string) {
+	dirs := strings.split(path, ":")
+
+	for dir in dirs {
+		full_path := strings.join({dir, binary_name}, "/")
+
+		info, err := os.stat(full_path, allocator = context.allocator)
+		if err != nil {
+			continue
+		}
+
+		// skip non_executables
+		if os.Permission_Flag.Execute_User not_in info.mode {
+			continue
+		}
+
+		return full_path
 	}
 
 	return nil
