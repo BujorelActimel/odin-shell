@@ -31,18 +31,12 @@ main :: proc() {
 evaluate :: proc(input: string) -> Maybe(int) {
 	input_array, _ := strings.split(input, " ")
 	command, args := input_array[0], input_array[1:]
-	switch command {
-	case "exit":
-		return command_exit(command, args)
 
-	case "echo":
-		return command_echo(command, args)
-
-	case "type":
-		return command_type(command, args)
-
-	case:
-		return command_not_found(command, args)
+	if command in builtin_commands {
+		builtin := builtin_commands[command]
+		return builtin(command, args)
+	} else {
+		return command_execute(command, args)
 	}
 }
 

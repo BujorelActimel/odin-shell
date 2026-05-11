@@ -9,7 +9,7 @@ import "core:strings"
 Builtin_Command :: proc(command: string, args: []string) -> Maybe(int)
 
 builtin_commands := map[string]Builtin_Command {
-	"exit" = command_echo,
+	"exit" = command_exit,
 	"echo" = command_echo,
 	"type" = command_type,
 }
@@ -59,6 +59,41 @@ command_type :: proc(command: string, args: []string) -> Maybe(int) {
 	}
 
 	return nil
+}
+
+command_execute :: proc(command: string, args: []string) -> Maybe(int) {
+	path := os.get_env("PATH", context.allocator)
+
+	result := search_exe_binary(path, command)
+
+	command_slice := [dynamic]string{command}
+	for arg in args {
+		append_elem(&command_slice, arg)
+	}
+
+	if bin_path, ok := result.?; ok {
+		process := os.Process_Desc {
+			working_dir = "",
+			command     = command_slice[:],
+		}
+
+		state, stdout, stderr, err := os.process_exec(process, context.allocator)
+
+		if err != nil {
+			fmt.eprintfln("Error: %s", err)
+		}
+
+		fmt.print(string(stdout))
+		fmt.eprint(string(stderr))
+
+		// if state.exit_code != 0 {
+		// 	return state.exit_code
+		// }
+
+		return nil
+	} else {
+		return command_not_found(command, args)
+	}
 }
 
 search_exe_binary :: proc(path: string, binary_name: string) -> Maybe(string) {
