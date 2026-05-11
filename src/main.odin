@@ -3,6 +3,7 @@ package main
 import "core:bufio"
 import "core:fmt"
 import "core:os"
+import "core:strings"
 
 main :: proc() {
 	exit_code := 0
@@ -28,12 +29,23 @@ main :: proc() {
 
 // returns the exit code or nil
 evaluate :: proc(input: string) -> Maybe(int) {
-	switch input {
+	input_array, _ := strings.split(input, " ")
+	command, args := input_array[0], input_array[1:]
+	switch command {
 	case "exit":
-		return 0
+		if len(args) == 0 {
+			return 0
+		}
+		return nil
+
+	case "echo":
+		command_echo(args)
+		return nil
+
 	case:
 		fmt.printfln("%s: command not found", input)
 		return nil
+
 	}
 }
 
