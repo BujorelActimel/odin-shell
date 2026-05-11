@@ -12,6 +12,7 @@ builtin_commands := map[string]Builtin_Command {
 	"exit" = command_exit,
 	"echo" = command_echo,
 	"type" = command_type,
+	"pwd"  = command_pwd,
 }
 
 command_not_found :: proc(command: string, args: []string) -> Maybe(int) {
@@ -58,6 +59,18 @@ command_type :: proc(command: string, args: []string) -> Maybe(int) {
 		}
 	}
 
+	return nil
+}
+
+command_pwd :: proc(command: string, args: []string) -> Maybe(int) {
+	dir, err := os.get_working_directory(context.allocator)
+
+	if err != nil {
+		fmt.eprintfln("Error: %s", err)
+		return nil
+	}
+
+	fmt.println(dir)
 	return nil
 }
 
