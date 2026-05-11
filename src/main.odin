@@ -5,6 +5,9 @@ import "core:fmt"
 import "core:os"
 
 main :: proc() {
+	exit_code := 0
+	defer os.exit(exit_code)
+
 	scanner: bufio.Scanner
 	stdin := os.to_stream(os.stdin)
 
@@ -13,7 +16,24 @@ main :: proc() {
 
 	for {
 		input := prompt_user(&scanner)
+
+		maybe_code := evaluate(input)
+
+		if code, ok := maybe_code.?; ok {
+			exit_code = code
+			break
+		}
+	}
+}
+
+// returns the exit code or nil
+evaluate :: proc(input: string) -> Maybe(int) {
+	switch input {
+	case "exit":
+		return 0
+	case:
 		fmt.printfln("%s: command not found", input)
+		return nil
 	}
 }
 
