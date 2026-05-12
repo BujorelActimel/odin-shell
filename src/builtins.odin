@@ -83,7 +83,7 @@ command_cd :: proc(command: string, args: []string) -> Maybe(int) {
 	new_dir: string
 	err: os.Error
 
-	new_dir, err = os.get_absolute_path(args[0], context.allocator)
+	new_dir, err = get_path(args[0])
 
 	if err != nil {
 		fmt.eprintfln("%s: %s: No such file or directory", command, args[0])
@@ -155,4 +155,19 @@ search_exe_binary :: proc(path: string, binary_name: string) -> Maybe(string) {
 	}
 
 	return nil
+}
+
+get_path :: proc(path: string) -> (string, os.Error) {
+	if path == "~" {
+		new_dir := os.get_env("HOME", context.allocator)
+		return new_dir, nil
+	}
+
+	new_dir, err := os.get_absolute_path(path, context.allocator)
+
+	if err != nil {
+		return "", os.Error{}
+	}
+
+	return new_dir, nil
 }
