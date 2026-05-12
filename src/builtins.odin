@@ -13,6 +13,7 @@ builtin_commands := map[string]Builtin_Command {
 	"echo" = command_echo,
 	"type" = command_type,
 	"pwd"  = command_pwd,
+	"cd"   = command_cd,
 }
 
 command_not_found :: proc(command: string, args: []string) -> Maybe(int) {
@@ -71,6 +72,21 @@ command_pwd :: proc(command: string, args: []string) -> Maybe(int) {
 	}
 
 	fmt.println(dir)
+	return nil
+}
+
+command_cd :: proc(command: string, args: []string) -> Maybe(int) {
+	if len(args) != 1 {
+		return command_not_found(command, args)
+	}
+
+	err := os.change_directory(args[0])
+
+	if err != nil {
+		fmt.eprintfln("%s: %s: No such file or directory", command, args[0])
+		return nil
+	}
+
 	return nil
 }
 
