@@ -80,7 +80,17 @@ command_cd :: proc(command: string, args: []string) -> Maybe(int) {
 		return command_not_found(command, args)
 	}
 
-	err := os.change_directory(args[0])
+	new_dir: string
+	err: os.Error
+
+	new_dir, err = os.get_absolute_path(args[0], context.allocator)
+
+	if err != nil {
+		fmt.eprintfln("%s: %s: No such file or directory", command, args[0])
+		return nil
+	}
+
+	err = os.change_directory(new_dir)
 
 	if err != nil {
 		fmt.eprintfln("%s: %s: No such file or directory", command, args[0])
